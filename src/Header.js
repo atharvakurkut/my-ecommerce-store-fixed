@@ -1,17 +1,20 @@
-import React, { useState, memo } from "react";
+import React, { useState, memo, useEffect, useRef } from "react";
+import { useNavigate } from 'react-router-dom'; // Added for routing support
 
 const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLogin, onLogout, onSearch, onGoHome, onGoToProducts }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
-  const searchRef = React.useRef(null);
-  const prevCartCountRef = React.useRef(cartItemsCount);
-  
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const searchRef = useRef(null);
+  const prevCartCountRef = useRef(cartItemsCount);
+  const navigate = useNavigate(); // Hook to change pages
+
   // Only update ref if count actually changed
   if (prevCartCountRef.current !== cartItemsCount) {
     prevCartCountRef.current = cartItemsCount;
   }
-  
+
   // Safely get user initial and name
   const userInitial = user?.name?.charAt(0).toUpperCase() || "👤";
   const userName = user?.name || "User";
@@ -32,12 +35,12 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
         const nameLower = product.name.toLowerCase();
         const brandLower = product.brand.toLowerCase();
         const categoryLower = product.category.toLowerCase();
-        
-        return nameLower.includes(termLower) || 
-               brandLower.includes(termLower) ||
-               categoryLower.includes(termLower);
+
+        return nameLower.includes(termLower) ||
+          brandLower.includes(termLower) ||
+          categoryLower.includes(termLower);
       })
-      .slice(0, 8) // Limit to 8 suggestions
+      .slice(0, 8)
       .map(product => ({
         id: product.id,
         name: product.name,
@@ -69,7 +72,7 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
   };
 
   // Close suggestions when clicking outside
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSuggestions(false);
@@ -101,12 +104,9 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
               onFocus={() => setShowSuggestions(true)}
               className="search-input"
             />
-            <button type="submit" className="search-btn">
-              🔍
-            </button>
+            <button type="submit" className="search-btn">🔍</button>
           </form>
 
-          {/* Search Suggestions */}
           {showSuggestions && searchSuggestions.length > 0 && (
             <div className="search-suggestions">
               {searchSuggestions.map((suggestion) => (
@@ -134,25 +134,13 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
 
         {/* Navigation */}
         <nav className="nav">
-          <button 
-            onClick={onGoHome}
-            className="nav-link"
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
+          <button onClick={onGoHome} className="nav-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             🏠 Home
           </button>
-          <button 
-            onClick={onGoToProducts}
-            className="nav-link"
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
+          <button onClick={onGoToProducts} className="nav-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             📦 Products
           </button>
-          <button
-            onClick={toggleCart}
-            className="nav-link cart-link"
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
+          <button onClick={toggleCart} className="nav-link cart-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             🛒 Cart
             {prevCartCountRef.current > 0 && (
               <span className="cart-badge">{prevCartCountRef.current}</span>
@@ -160,25 +148,29 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           </button>
         </nav>
 
-        {/* User Section */}
-        {user ? (
-          <div className="user-box">
-            <div className="user-avatar">{userInitial}</div>
-            <span className="username">Hi, {userName}!</span>
-            <button onClick={onLogout} className="logout-btn">
-              Logout
-            </button>
-          </div>
-        ) : (
-          <button onClick={onShowLogin} className="login-btn">
-            👤 Login
+        {/* User Section + Admin Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          
+          {/* Updated Admin Button with direct navigation */}
+          <button onClick={() => navigate('/admin-login')} className="admin-login-btn">
+            🔐 Admin
           </button>
-        )}
+
+          {user ? (
+            <div className="user-box">
+              <div className="user-avatar">{userInitial}</div>
+              <span className="username">Hi, {userName}!</span>
+              <button onClick={onLogout} className="logout-btn">Logout</button>
+            </div>
+          ) : (
+            <button onClick={onShowLogin} className="login-btn">
+              👤 Login
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Embedded CSS */}
       <style>{`
-        /* Header */
         .header {
           background: linear-gradient(90deg, #667eea, #764ba2);
           padding: 18px 0;
@@ -188,7 +180,6 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           top: 0;
           z-index: 1000;
         }
-
         .header-container {
           display: flex;
           justify-content: space-between;
@@ -198,24 +189,8 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           padding: 0 20px;
           gap: 20px;
         }
-
-        /* Logo in white */
-        .logo {
-          margin: 0;
-          font-size: 30px;
-          font-weight: bold;
-          color: white;
-          flex-shrink: 0;
-        }
-
-        /* Search Container */
-        .search-container {
-          flex: 1;
-          max-width: 500px;
-          position: relative;
-        }
-
-        /* Search Form */
+        .logo { margin: 0; font-size: 30px; font-weight: bold; color: white; flex-shrink: 0; }
+        .search-container { flex: 1; max-width: 500px; position: relative; }
         .search-form {
           display: flex;
           align-items: center;
@@ -226,7 +201,6 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.25);
         }
-
         .search-input {
           flex: 1;
           background: transparent;
@@ -236,11 +210,7 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           color: white;
           font-size: 14px;
         }
-
-        .search-input::placeholder {
-          color: rgba(255, 255, 255, 0.7);
-        }
-
+        .search-input::placeholder { color: rgba(255, 255, 255, 0.7); }
         .search-btn {
           background: rgba(255, 255, 255, 0.2);
           border: none;
@@ -255,13 +225,6 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           font-size: 16px;
           transition: all 0.3s ease;
         }
-
-        .search-btn:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: scale(1.05);
-        }
-
-        /* Search Suggestions */
         .search-suggestions {
           position: absolute;
           top: 100%;
@@ -276,7 +239,6 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           overflow-y: auto;
           padding: 10px;
         }
-
         .suggestion-item {
           display: flex;
           align-items: center;
@@ -284,72 +246,20 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           cursor: pointer;
           border-radius: 8px;
           transition: all 0.2s ease;
-        }
-
-        .suggestion-item:hover {
-          background: #f8f9fa;
-        }
-
-        .suggestion-image {
-          width: 50px;
-          height: 50px;
-          border-radius: 8px;
-          overflow: hidden;
-          margin-right: 15px;
-          border: 1px solid #eee;
-        }
-
-        .suggestion-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .suggestion-info {
-          flex: 1;
-        }
-
-        .suggestion-name {
-          font-size: 14px;
-          font-weight: 500;
           color: #333;
-          margin-bottom: 4px;
         }
-
-        .suggestion-details {
-          display: flex;
-          gap: 10px;
-          font-size: 12px;
-          color: #666;
-        }
-
-        .suggestion-brand {
-          color: #667eea;
-          font-weight: 500;
-        }
-
-        .suggestion-category {
-          background: #f1f3f9;
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-        }
-
-        .suggestion-price {
-          color: #28a745;
-          font-weight: 500;
-        }
-
-        /* Navigation */
-        .nav {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-
+        .suggestion-item:hover { background: #f8f9fa; }
+        .suggestion-image { width: 50px; height: 50px; border-radius: 8px; overflow: hidden; margin-right: 15px; border: 1px solid #eee; }
+        .suggestion-image img { width: 100%; height: 100%; object-fit: cover; }
+        .suggestion-info { flex: 1; }
+        .suggestion-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+        .suggestion-details { display: flex; gap: 10px; font-size: 12px; color: #666; }
+        .suggestion-brand { color: #667eea; font-weight: 500; }
+        .suggestion-category { background: #f1f3f9; padding: 2px 8px; border-radius: 12px; font-size: 11px; }
+        .suggestion-price { color: #28a745; font-weight: 500; }
+        .nav { display: flex; align-items: center; gap: 20px; }
         .nav-link {
           color: white;
-          text-decoration: none;
           padding: 10px 20px;
           border-radius: 25px;
           background: rgba(255, 255, 255, 0.15);
@@ -358,17 +268,6 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           transition: all 0.3s ease;
           font-weight: 500;
         }
-
-        .nav-link:hover {
-          background: rgba(255, 255, 255, 0.25);
-          transform: scale(1.05);
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-        }
-
-        .cart-link {
-          position: relative;
-        }
-
         .cart-badge {
           background: #ff4757 !important;
           color: white !important;
@@ -379,19 +278,20 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           top: -6px !important;
           right: -8px !important;
           min-width: 20px !important;
-          text-align: center !important;
           font-weight: bold !important;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-          display: inline-block !important;
-          opacity: 1 !important;
-          visibility: visible !important;
-          transform: none !important;
-          transition: none !important;
-          animation: none !important;
-          will-change: auto !important;
         }
-
-        /* User Box */
+        .admin-login-btn {
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          padding: 8px 16px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: bold;
+          transition: all 0.3s ease;
+        }
+        .admin-login-btn:hover { background: white; color: #764ba2; transform: scale(1.05); }
         .user-box {
           display: flex;
           align-items: center;
@@ -400,10 +300,7 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           padding: 8px 16px;
           border-radius: 30px;
           border: 1px solid rgba(255, 255, 255, 0.25);
-          backdrop-filter: blur(10px);
         }
-
-        /* Purple Gradient Avatar */
         .user-avatar {
           background: linear-gradient(135deg, #667eea, #764ba2);
           color: white;
@@ -414,15 +311,8 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           align-items: center;
           justify-content: center;
           font-weight: bold;
-          font-size: 16px;
         }
-
-        .username {
-          font-size: 14px;
-        }
-
-        .logout-btn,
-        .login-btn {
+        .logout-btn, .login-btn {
           background: rgba(255, 255, 255, 0.2);
           color: white;
           border: 1px solid rgba(255, 255, 255, 0.3);
@@ -430,19 +320,77 @@ const Header = memo(function Header({ cartItemsCount, toggleCart, user, onShowLo
           border-radius: 25px;
           cursor: pointer;
           font-size: 14px;
-          transition: all 0.3s ease;
         }
 
-        .logout-btn:hover,
-        .login-btn:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: scale(1.05);
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+          .header {
+            padding: 12px 0;
+          }
+          .header-container {
+            flex-direction: column;
+            padding: 0 15px;
+            gap: 15px;
+          }
+          .logo {
+            font-size: 24px;
+            text-align: center;
+          }
+          .search-container {
+            max-width: 100%;
+            order: 3;
+          }
+          .search-input {
+            font-size: 16px;
+            padding: 12px 15px;
+          }
+          .nav {
+            display: none;
+          }
+          .user-box {
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            text-align: center;
+          }
+          .username {
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .header-container {
+            padding: 0 10px;
+          }
+          .logo {
+            font-size: 20px;
+          }
+          .search-form {
+            padding: 3px;
+          }
+          .search-input {
+            padding: 10px 12px;
+            font-size: 14px;
+          }
+          .search-btn {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+          }
+          .user-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+          }
+          .logout-btn, .login-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+          }
         }
       `}</style>
     </header>
   );
 }, (prevProps, nextProps) => {
-  // Custom comparison to prevent re-renders when only cartItemsCount changes but value is same
   return (
     prevProps.cartItemsCount === nextProps.cartItemsCount &&
     prevProps.user?.email === nextProps.user?.email &&

@@ -4,11 +4,52 @@ import { allProducts } from './ProductData';
 
 function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick }) {
   const [products, setProducts] = useState([]);
+  const [backendProducts, setBackendProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [sortBy, setSortBy] = useState('default');
+  const [loading, setLoading] = useState(true);
+
+  // Load backend products
+  useEffect(() => {
+    const fetchBackendProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/products');
+        if (response.ok) {
+          const products = await response.json();
+          // Format backend products to match frontend structure
+          const formattedProducts = products.map((product, index) => ({
+            id: `backend_${product._id}`,
+            name: product.name,
+            description: product.description || `Product from ${product.category}`,
+            price: product.price,
+            originalPrice: product.price * 1.2, // Add some margin
+            category: product.category,
+            brand: product.brand || 'Unknown',
+            image: product.image,
+            rating: 4.0 + Math.random(), // Random rating for demo
+            reviews: Math.floor(Math.random() * 100) + 1,
+            inStock: true
+          }));
+          setBackendProducts(formattedProducts);
+        }
+      } catch (error) {
+        console.error('Error fetching backend products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBackendProducts();
+  }, []);
+
+  // Combine manual and backend products
+  useEffect(() => {
+    const allCombinedProducts = [...allProducts, ...backendProducts];
+    setProducts(allCombinedProducts);
+  }, [backendProducts]);
 
   // Grouped categories (virtual) that map to multiple concrete categories
   const CATEGORY_GROUPS = {
@@ -46,7 +87,18 @@ function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick })
 
   useEffect(() => {
     // Always start with a fresh copy and ensure consistent ordering
-    let result = [...allProducts].sort((a, b) => a.id - b.id);
+    let result = [...products].sort((a, b) => {
+      // Sort by ID for manual products, then by creation date for backend products
+      if (typeof a.id === 'number' && typeof b.id === 'number') {
+        return a.id - b.id;
+      } else if (typeof a.id === 'number') {
+        return -1; // Manual products first
+      } else if (typeof b.id === 'number') {
+        return 1; // Manual products first
+      } else {
+        return 0; // Keep backend products in their order
+      }
+    });
 
     // Apply category filtering FIRST before any other filters
     if (selectedCategory !== 'all') {
@@ -116,10 +168,10 @@ function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick })
     setFilteredProducts(result);
   }, [searchQuery, selectedCategory, selectedBrand, priceRange, sortBy]);
 
-  const baseCategories = Array.from(new Set(allProducts.map(p => p.category)));
+  const baseCategories = Array.from(new Set([...allProducts.map(p => p.category), ...backendProducts.map(p => p.category)]));
   const hasClothing = ['mens-clothing', 'womens-clothing', 'mens-shoes', 'womens-shoes'].some(c => baseCategories.includes(c));
   const categories = ['all', ...(hasClothing ? ['clothing'] : []), ...baseCategories];
-  const brands = ['all', ...new Set(allProducts.map(p => p.brand))];
+  const brands = ['all', ...new Set([...allProducts.map(p => p.brand), ...backendProducts.map(p => p.brand)])];
 
   const clearFilters = () => {
     setSelectedCategory('all');
@@ -129,7 +181,7 @@ function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick })
   };
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+    <div style={{ padding: window.innerWidth <= 768 ? '20px 10px' : '20px', backgroundColor: '#f8f9fa', minHeight: '100vh' }} className="mobile-main-content">
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         
         <div style={{ marginBottom: '30px' }}>
@@ -164,15 +216,17 @@ function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick })
 
         <div style={{ display: 'flex', gap: '30px' }}>
           
-          <div style={{           width: '280px',
+          <div style={{           
+            width: '280px',
             background: 'white',
             padding: '25px',
             borderRadius: '15px',
             boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
             height: 'fit-content',
             position: 'sticky',
-            top: '20px'
-          }}>
+            top: '20px',
+            display: window.innerWidth <= 768 ? 'none' : 'block'
+          }} className="mobile-filter-sidebar">
             <div style={{             display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -289,11 +343,26 @@ function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick })
               </select>
             </div>
 
-            {filteredProducts.length > 0 ? (
-              <div style={{               display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '25px'
+            {loading ? (
+              <div style={{
+                background: 'white',
+                padding: '60px 40px',
+                borderRadius: '15px',
+                textAlign: 'center',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.08)'
               }}>
+                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🔄</div>
+                <h3 style={{ color: '#333', marginBottom: '10px' }}>Loading Products...</h3>
+                <p style={{ color: '#666' }}>
+                  Fetching products from database
+                </p>
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: window.innerWidth <= 768 ? 'repeat(auto-fill, minmax(200px, 1fr))' : 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: window.innerWidth <= 768 ? '20px' : '25px'
+              }} className="mobile-search-results">
                 {filteredProducts.map(product => (
                   <ProductCard
                     key={product.id}

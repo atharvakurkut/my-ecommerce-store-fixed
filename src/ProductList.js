@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
 import ImageWithFallback from './ImageWithFallback';
 import { buildLocalImageCandidates } from './utils/imagePaths';
@@ -8,16 +8,65 @@ import { allProducts } from './ProductData';
 
 function ProductList({ addToCart, user, onGoToProducts, onProductClick, searchHistory, recentlyViewedProducts, onSearch }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [backendProducts, setBackendProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredProducts = allProducts
+  // Load products from backend
+  useEffect(() => {
+    const fetchBackendProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/products');
+        if (response.ok) {
+          const products = await response.json();
+          // Format backend products to match frontend structure
+          const formattedProducts = products.map((product, index) => ({
+            id: `backend_${product._id}`,
+            name: product.name,
+            description: product.description || `Product from ${product.category}`,
+            price: product.price,
+            originalPrice: product.price * 1.2, // Add some margin
+            category: product.category,
+            brand: product.brand || 'Unknown',
+            image: product.image,
+            rating: 4.0 + Math.random(), // Random rating for demo
+            reviews: Math.floor(Math.random() * 100) + 1,
+            inStock: true
+          }));
+          setBackendProducts(formattedProducts);
+        }
+      } catch (error) {
+        console.error('Error fetching backend products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBackendProducts();
+  }, []);
+
+  // Combine manual and backend products
+  const allCombinedProducts = [...allProducts, ...backendProducts];
+
+  const filteredProducts = allCombinedProducts
     .filter(product =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    .sort((a, b) => a.id - b.id); // Maintain consistent ordering
+    .sort((a, b) => {
+      // Sort by ID for manual products, then by creation date for backend products
+      if (typeof a.id === 'number' && typeof b.id === 'number') {
+        return a.id - b.id;
+      } else if (typeof a.id === 'number') {
+        return -1; // Manual products first
+      } else if (typeof b.id === 'number') {
+        return 1; // Manual products first
+      } else {
+        return 0; // Keep backend products in their order
+      }
+    });
 
   return (
-    <div style={{ padding: '40px 20px', backgroundColor: '#f8f9fa' }}>
+    <div style={{ padding: window.innerWidth <= 768 ? '20px 10px' : '40px 20px', backgroundColor: '#f8f9fa' }} className="mobile-main-content">
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
 
@@ -182,32 +231,44 @@ function ProductList({ addToCart, user, onGoToProducts, onProductClick, searchHi
         </div>
 
         {/* 🛒 Product Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '30px'
-        }}>
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                addToCart={addToCart}
-                isLoggedIn={!!user}
-                onProductClick={onProductClick}
-              />
-            ))
-          ) : (
-            <div style={{
-              gridColumn: '1 / -1',
-              textAlign: 'center',
-              color: '#999',
-              fontSize: '18px'
-            }}>
-              ❌ No products found for "<strong>{searchTerm}</strong>"
-            </div>
-          )}
-        </div>
+        {loading ? (
+          <div style={{
+            gridColumn: '1 / -1',
+            textAlign: 'center',
+            color: '#666',
+            fontSize: '18px',
+            padding: '40px'
+          }}>
+            🔄 Loading products from database...
+          </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: window.innerWidth <= 768 ? 'repeat(auto-fit, minmax(150px, 1fr))' : 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: window.innerWidth <= 768 ? '15px' : '30px'
+          }} className="mobile-product-grid">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  addToCart={addToCart}
+                  isLoggedIn={!!user}
+                  onProductClick={onProductClick}
+                />
+              ))
+            ) : (
+              <div style={{
+                gridColumn: '1 / -1',
+                textAlign: 'center',
+                color: '#999',
+                fontSize: '18px'
+              }}>
+                ❌ No products found for "<strong>{searchTerm}</strong>"
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 👤 Login Prompt */}
         {!user && (

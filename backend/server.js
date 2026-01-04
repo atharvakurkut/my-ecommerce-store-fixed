@@ -1,4 +1,5 @@
 // server.js
+console.log('🔥 server.js ACTUALLY RUNNING');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -10,7 +11,7 @@ dotenv.config();
 
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/productRoutes');
-const productInteractionRoutes = require('./routes/productInteractionRoutes'); // <- make sure this file exists
+const productInteractionRoutes = require('./routes/productInteractionRoutes');
 
 const app = express();
 
@@ -18,12 +19,14 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors({
-  origin: ['http://localhost:3000'], // adjust if your frontend runs elsewhere
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true
 }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+const orderRoutes = require('./routes/orderRoutes');
+app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/interactions', productInteractionRoutes);
 
@@ -32,7 +35,9 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerceDB
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('✅ MongoDB connected'))
+.then(() => {
+  console.log('✅ MongoDB connected');
+})
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
 const PORT = process.env.PORT || 5000;

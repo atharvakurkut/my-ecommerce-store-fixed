@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'devsecret';
 
 // Signup route
 router.post('/signup', async (req, res) => {
@@ -31,7 +34,14 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
 
-    res.json({ message: 'Login successful', user: { name: user.name, email: user.email } });
+    const payload = { id: user._id.toString(), email: user.email };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({ 
+      message: 'Login successful', 
+      user: { name: user.name, email: user.email },
+      token
+    });
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ message: 'Server error' });

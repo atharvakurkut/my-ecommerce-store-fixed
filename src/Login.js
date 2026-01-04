@@ -27,7 +27,16 @@ function Login({ onLogin, onSwitchToRegister }) {
         return;
       }
 
-      onLogin(data.user || { email }); // can expand this later
+      // Persist token for authenticated requests
+      if (data.token) {
+        localStorage.setItem('ecommerce_auth_token', data.token);
+      }
+      // Persist user info
+      if (data.user) {
+        localStorage.setItem('ecommerce_current_user', JSON.stringify(data.user));
+      }
+
+      onLogin({ ...data.user, token: data.token });
       setError('');
     } catch (err) {
       console.error('Login error:', err);

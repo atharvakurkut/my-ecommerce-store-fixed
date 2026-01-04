@@ -68,6 +68,7 @@ function PaymentPage({ product, quantity, cartItems, isCartCheckout, user, onPay
             // Complete the payment process
             setIsProcessing(false);
             setPaymentStatus('success');
+            saveOrderToBackend(order);
             onPaymentComplete && onPaymentComplete(order);
           }
         }
@@ -363,6 +364,7 @@ function PaymentPage({ product, quantity, cartItems, isCartCheckout, user, onPay
       setTimeout(() => {
         setIsProcessing(false);
         setPaymentStatus('success');
+        saveOrderToBackend(orderDetails);
         onPaymentComplete && onPaymentComplete(orderDetails);
       }, 3000);
     }
@@ -948,5 +950,31 @@ function PaymentPage({ product, quantity, cartItems, isCartCheckout, user, onPay
     </div>
   );
 }
+// ✅ Save order to backend
+const saveOrderToBackend = async (orderDetails) => {
+  try {
+    await fetch('http://localhost:5000/api/orders/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: orderDetails.orderId,
+        user: {
+          name: orderDetails.user.name,
+          email: orderDetails.user.email
+        },
+        products: orderDetails.products.map(item => ({
+          productId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        totalAmount: orderDetails.finalAmount,
+        paymentMethod: orderDetails.paymentMethod
+      })
+    });
+  } catch (err) {
+    console.error('Order save error:', err);
+  }
+};
 
 export default PaymentPage;

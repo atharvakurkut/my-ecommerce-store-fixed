@@ -1,0 +1,109 @@
+.admin-login-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4f7fe;
+}
+
+.admin-login-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background: #6a5acd; /* Matching your purple theme */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.back-btn {
+    margin-top: 15px;
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+}
+.prod-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.prod-cell img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.admin-table th {
+    background: #f1f3f9;
+    padding: 15px;
+    text-align: left;
+    font-size: 14px;
+    color: #444;
+}
+
+.admin-table td {
+    padding: 15px;
+    border-bottom: 1px solid #f1f1f1;
+    font-size: 14px;
+}
+
+.table-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-prod-btn {
+    background: #6c5ce7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.edit-btn { background: #fab1a0; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+.del-btn { background: #ff7675; border: none; padding: 5px 10px; border-radius: 4px; color: white; cursor: pointer; }

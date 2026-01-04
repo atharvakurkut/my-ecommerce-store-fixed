@@ -1,26 +1,22 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './Header';
-import ProductList from './ProductList';
-import Cart from './Cart';
-import Login from './Login';
-import Register from './Register';
-import HomePage from './HomePage';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import App from './App';
+import AdminLogin from './admin/AdminLogin'; // New Import
+import AdminDashboard from './admin/AdminDashboard'; // New Import
 
 function AppRouter() {
   return (
-    <Router>
-      <Header />
+    <BrowserRouter>
       <Routes>
-        {/* Home Page */}
-        <Route path="/" element={<HomePage />} />
+        {/* ADMIN ROUTES */}
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-        {/* Search results page */}
-        <Route path="/search/:query" element={<ProductList />} />
-        
-        {/* Future: Add more pages like ProductDetail, etc. */}
+        {/* USER WEBSITE (Main Store) */}
+        {/* The "/*" means it will catch all other routes and show your App.js */}
+        <Route path="/*" element={<App />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

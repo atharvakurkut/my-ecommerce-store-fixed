@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Cart({ cartItems = [], updateQuantity, removeFromCart, onCheckout }) {
+function Cart({ cartItems = [], updateQuantity, removeFromCart, onCheckout, onContinueShopping }) {
   const getTotalPrice = () => {
     if (!cartItems || cartItems.length === 0) return 0;
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -27,9 +27,23 @@ function Cart({ cartItems = [], updateQuantity, removeFromCart, onCheckout }) {
           padding: '40px 20px'
         }}>
           <div style={{ fontSize: '48px', marginBottom: '20px' }}>🛒</div>
-          Your cart is empty
-          <br />
-          <small style={{ color: '#999' }}>Add some amazing products!</small>
+          <h3 style={{ color: '#333', marginBottom: '10px' }}>Your cart is empty</h3>
+          <p style={{ color: '#999', marginBottom: '20px' }}>Add some amazing products to get started!</p>
+          <button 
+            onClick={onContinueShopping || (() => window.location.href = '/')}
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              border: 'none',
+              padding: '10px 25px',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}
+          >
+            Continue Shopping
+          </button>
         </div>
       ) : (
         <>

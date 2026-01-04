@@ -8,14 +8,14 @@ function ProductCard({ product, addToCart, isLoggedIn, onProductClick }) {
     <div style={{
       background: 'white',
       borderRadius: '20px',
-      padding: '20px',
+      padding: window.innerWidth <= 768 ? '15px' : '20px',
       boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
       transition: 'all 0.3s ease',
       cursor: 'pointer',
       border: '1px solid rgba(0, 0, 0, 0.1)',
       position: 'relative',
       opacity: isLoggedIn ? 1 : 0.9
-    }}
+    }} className="mobile-card-padding"
     onMouseOver={(e) => {
       e.currentTarget.style.transform = 'translateY(-10px)';
       e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.2)';
@@ -44,7 +44,7 @@ function ProductCard({ product, addToCart, isLoggedIn, onProductClick }) {
       <div 
         style={{
           width: '100%',
-          height: '200px',
+          height: window.innerWidth <= 768 ? '150px' : '200px',
           backgroundColor: '#f8f9fa',
           borderRadius: '15px',
           marginBottom: '15px',
@@ -195,8 +195,9 @@ function ProductCard({ product, addToCart, isLoggedIn, onProductClick }) {
               : 'linear-gradient(135deg, #ccc 0%, #999 100%)',
             color: 'white',
             border: 'none',
-            padding: '10px 20px',
+            padding: window.innerWidth <= 480 ? '8px 16px' : '10px 20px',
             borderRadius: '25px',
+            fontSize: window.innerWidth <= 480 ? '14px' : '16px',
             cursor: isLoggedIn ? 'pointer' : 'not-allowed',
             fontWeight: '500',
             transition: 'all 0.3s ease',

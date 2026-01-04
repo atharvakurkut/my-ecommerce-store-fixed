@@ -211,8 +211,8 @@ function ProductDetail({ product, addToCart, user, onBuyNow, onGoBack, onProduct
   };
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: window.innerWidth <= 768 ? '20px 10px' : '20px', backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+      <div style={{ maxWidth: window.innerWidth <= 768 ? '100%' : '1400px', margin: '0 auto' }}>
         
         {/* Breadcrumb */}
         <div style={{ marginBottom: '20px' }}>
@@ -233,14 +233,24 @@ function ProductDetail({ product, addToCart, user, onBuyNow, onGoBack, onProduct
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '40px', background: 'white', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+        <div style={{ 
+          display: window.innerWidth <= 768 ? 'block' : 'flex', 
+          gap: window.innerWidth <= 768 ? '20px' : '40px', 
+          background: 'white', 
+          borderRadius: '15px', 
+          padding: window.innerWidth <= 768 ? '20px' : '30px', 
+          boxShadow: '0 4px 15px rgba(0,0,0,0.1)' 
+        }}>
           
           {/* Image Gallery */}
-          <div style={{ flex: '0 0 500px' }}>
+          <div style={{ 
+            flex: window.innerWidth <= 768 ? '1' : '0 0 500px',
+            maxWidth: window.innerWidth <= 768 ? '100%' : '500px'
+          }}>
             {/* Main Image */}
             <div style={{
               width: '100%',
-              height: '400px',
+              height: window.innerWidth <= 768 ? '250px' : '400px',
               backgroundColor: '#f8f9fa',
               borderRadius: '15px',
               marginBottom: '20px',
@@ -521,7 +531,10 @@ function ProductDetail({ product, addToCart, user, onBuyNow, onGoBack, onProduct
 
               {/* Action Buttons */}
               {user ? (
-                <div style={{ display: 'flex', gap: '15px' }}>
+                <div style={{ 
+                  display: window.innerWidth <= 768 ? 'block' : 'flex', 
+                  gap: window.innerWidth <= 768 ? '10px' : '15px' 
+                }}>
                   <button
                     onClick={() => {
                       for (let i = 0; i < quantity; i++) {
@@ -530,11 +543,11 @@ function ProductDetail({ product, addToCart, user, onBuyNow, onGoBack, onProduct
                     }}
                     disabled={!product.inStock}
                     style={{
-                      flex: 1,
+                      flex: window.innerWidth <= 768 ? '1' : '1',
                       background: product.inStock ? 'linear-gradient(135deg, #28a745 0%, #20c997 100%)' : '#ccc',
                       color: 'white',
                       border: 'none',
-                      padding: '15px 30px',
+                      padding: window.innerWidth <= 768 ? '12px 20px' : '15px 30px',
                       borderRadius: '8px',
                       cursor: product.inStock ? 'pointer' : 'not-allowed',
                       fontSize: '16px',
@@ -548,11 +561,11 @@ function ProductDetail({ product, addToCart, user, onBuyNow, onGoBack, onProduct
                     onClick={() => onBuyNow && onBuyNow(product, quantity)}
                     disabled={!product.inStock}
                     style={{
-                      flex: 1,
+                      flex: window.innerWidth <= 768 ? '1' : '1',
                       background: product.inStock ? 'linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)' : '#ccc',
                       color: 'white',
                       border: 'none',
-                      padding: '15px 30px',
+                      padding: window.innerWidth <= 768 ? '12px 20px' : '15px 30px',
                       borderRadius: '8px',
                       cursor: product.inStock ? 'pointer' : 'not-allowed',
                       fontSize: '16px',
