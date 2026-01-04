@@ -19,9 +19,14 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://atharvakurkut.github.io'
+  ],
   credentials: true
 }));
+
 
 // Routes
 app.use('/api/auth', authRoutes);
