@@ -32,7 +32,7 @@ function App() {
   const [productReviews, setProductReviews] = useState({});
   const [productQA, setProductQA] = useState({});
   // Backend API URL
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'https://my-ecommerce-store-fixed-1.onrender.com/api';
   // User database simulation (in real app, this would be backend)
   const [userDatabase, setUserDatabase] = useState({});
   // Load specific user's cart
