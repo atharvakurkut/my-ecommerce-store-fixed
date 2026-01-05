@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
 import { allProducts } from './ProductData';
+import API_BASE_URL from './config';
 
 function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick }) {
   const [products, setProducts] = useState([]);
@@ -16,7 +17,7 @@ function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick })
   useEffect(() => {
     const fetchBackendProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch(`${API_BASE_URL}/products`);
         if (response.ok) {
           const products = await response.json();
           // Format backend products to match frontend structure
@@ -36,7 +37,8 @@ function AllProducts({ addToCart, user, searchQuery, onGoHome, onProductClick })
           setBackendProducts(formattedProducts);
         }
       } catch (error) {
-        console.error('Error fetching backend products:', error);
+        console.log('Backend not accessible, using manual products only');
+        // Don't show error to user, just continue with manual products
       } finally {
         setLoading(false);
       }

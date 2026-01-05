@@ -5,6 +5,7 @@ import { buildLocalImageCandidates } from './utils/imagePaths';
 import { getBrandBadgeDataUri } from './utils/brandBadge';
 import { getModelBadgeDataUri } from './utils/modelBadge';
 import { allProducts } from './ProductData';
+import API_BASE_URL from './config';
 
 function ProductList({ addToCart, user, onGoToProducts, onProductClick, searchHistory, recentlyViewedProducts, onSearch }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,7 +16,7 @@ function ProductList({ addToCart, user, onGoToProducts, onProductClick, searchHi
   useEffect(() => {
     const fetchBackendProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch(`${API_BASE_URL}/products`);
         if (response.ok) {
           const products = await response.json();
           // Format backend products to match frontend structure
@@ -33,9 +34,14 @@ function ProductList({ addToCart, user, onGoToProducts, onProductClick, searchHi
             inStock: true
           }));
           setBackendProducts(formattedProducts);
+          console.log('✅ Backend products loaded:', formattedProducts.length);
+        } else {
+          console.log('❌ Backend responded with status:', response.status);
         }
       } catch (error) {
-        console.error('Error fetching backend products:', error);
+        console.log('🔄 Backend not accessible, using manual products only');
+        console.log('Error details:', error.message);
+        // Don't show error to user, just continue with manual products
       } finally {
         setLoading(false);
       }

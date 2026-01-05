@@ -8,6 +8,7 @@ import Receipt from './Receipt';
 import Cart from './Cart';
 import Login from './Login';
 import Register from './Register';
+import API_BASE_URL from './config';
 function App() {
   
   // Authentication state
@@ -32,7 +33,7 @@ function App() {
   const [productReviews, setProductReviews] = useState({});
   const [productQA, setProductQA] = useState({});
   // Backend API URL
-  const API_URL = 'https://my-ecommerce-store-fixed-1.onrender.com/api';
+  const API_URL = API_BASE_URL;
   // User database simulation (in real app, this would be backend)
   const [userDatabase, setUserDatabase] = useState({});
   // Load specific user's cart
